@@ -10,6 +10,6 @@ ytdl=""
 async def on_ready():
     print("Ready !")
     channel = bot.get_channel(963007190308892702)
-    await channel.send("Salut je suis allumé!!!")
+    await channel.send("Salut je suis allumé pour la 3ème fois!!!")
 
 bot.run("OTYyNzc4OTczODA3NDQ4MDk1.YlMfyg.XnRmFuH4O-iRFHeFcQ5Em26JiIU")
