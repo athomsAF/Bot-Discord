@@ -6,13 +6,31 @@ bot = commands.Bot(command_prefix ="!", description = "Bot du Fab")
 musics ={}
 ytdl=""
 
-#test1212
-
-
 @bot.event
 async def on_ready():
     print("Ready !")
     channel = bot.get_channel(963007190308892702)
-    await channel.send("Salut je suis allumé pour la 3ème fois!!!")
+    await channel.send("On air :p")
 
-bot.run("OTYyNzc4OTczODA3NDQ4MDk1.YlMfyg.XnRmFuH4O-iRFHeFcQ5Em26JiIU")
+@bot.command()
+async def Hi(ctx):
+    await ctx.reply("Yoosh <@691000665186762802> !!", tts=True)
+
+@bot.command()
+async def Sol(ctx):
+    await ctx.send("Yooooosh Soline !!", tts=True)
+
+@bot.command(aliases= ['purge','delete','del']) #clear command
+@commands.has_permissions(manage_messages=True)
+async def clear(ctx, amount=None):
+    if amount == None:
+        await ctx.channel.purge(limit=1000000)
+    else:
+       await ctx.channel.purge(limit=amount)
+
+@bot.command()
+async def Boom(ctx):
+    await ctx.send("boom !", tts=True)
+
+
+bot.run("OTYzMzg1MTY3MjgyNTg5NzA3.YlVUWg.DAEkTP7NxDCOdSbbd6n6Qpg9o-U")
