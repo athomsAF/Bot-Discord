@@ -6,6 +6,9 @@ bot = commands.Bot(command_prefix ="!", description = "Bot du Fab")
 musics ={}
 ytdl=""
 
+#test1212
+
+
 @bot.event
 async def on_ready():
     print("Ready !")
