@@ -10,15 +10,15 @@ async def on_ready():
     channel = bot.get_channel(963007190308892702)
     await channel.send("Turned on")
 
-@bot.command()
+@bot.command(aliases= ['hi'])
 async def Hi(ctx):
-    await ctx.reply("Yoosh  ctx.author !", )
+    await ctx.send(f"Yoosh  #{ctx.author.mention} !", )
 
-@bot.command()
+@bot.command(aliases=['sol','soline','Soline'])
 async def Sol(ctx):
-    await ctx.send("Yooooosh Soline !!", tts=True)
+    await ctx.send(f"Yooooosh Soline !!", tts=True)
 
-@bot.command(aliases= ['purge','delete','del','dl','suppr']) #clear command
+@bot.command(aliases= ['purge','Purge','prg','Prg','delete','Delete','del','Del','dl','Dl','suppr','clr','Clr','cl','Cl','Clear']) #clear command
 @commands.has_permissions(manage_messages=True)
 async def clear(ctx,amount: int = None):
     if amount == None:
@@ -34,6 +34,6 @@ async def Boom(ctx):
 async def foo(ctx, arg):
     await ctx.send(arg, tts = True)
 
-#/usr/bin/python3 "/Volumes/Macintosh HD - Données/FICHIERS/ESILV/VsCode/Bot-Discord/Bot.py"
+#   /usr/bin/python3 "/Volumes/Macintosh HD - Données/FICHIERS/ESILV/VsCode/Bot-Discord/Bot.py"
 
 bot.run("OTYzMzg1MTY3MjgyNTg5NzA3.YlVUWg.DAEkTP7NxDCOdSbbd6n6Qpg9o-U")
