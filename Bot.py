@@ -3,8 +3,6 @@ from discord.ext import commands
 import youtube_dl
 
 bot = commands.Bot(command_prefix ="$", description = "Bot du Fab")
-#musics ={}
-#ytdl=""
 
 @bot.event
 async def on_ready():
@@ -36,8 +34,6 @@ async def Boom(ctx):
 async def foo(ctx, arg):
     await ctx.send(arg, tts = True)
 
-
 #/usr/bin/python3 "/Volumes/Macintosh HD - Données/FICHIERS/ESILV/VsCode/Bot-Discord/Bot.py"
-
 
 bot.run("OTYzMzg1MTY3MjgyNTg5NzA3.YlVUWg.DAEkTP7NxDCOdSbbd6n6Qpg9o-U")
