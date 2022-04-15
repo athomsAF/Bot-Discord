@@ -26,14 +26,14 @@ async def clear(ctx,amount: int = None):
 async def Parrot(ctx, arg):
     await ctx.send(arg, tts = True)
 
-@bot.command()
+@bot.command(aliases = ['InfoServeur'])
 async def InfoServeur(ctx):
     server = ctx.guild
     NombreChanText = len(server.text_channels)
     NombreChanVoc = len(server.voice_channels)
     NombrePersonnes = server.member_count
     NomServeur = server.name
-    message = f"Le serveur **{NomServeur}** contient {NombrePersonnes} personnes. \n Le serveur possède {NombreChanText} salons textuels et {NombreChanVoc} salons vocaux."
+    message = f"Le serveur **{NomServeur}** contient {NombrePersonnes} personnes. \nLe serveur possède {NombreChanText} salons textuels et {NombreChanVoc} salons vocaux."
     await ctx.send(message)
 
 
