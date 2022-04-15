@@ -12,11 +12,7 @@ async def on_ready():
 
 @bot.command(aliases= ['hi'])
 async def Hi(ctx):
-    await ctx.send(f"Yoosh  #{ctx.author.mention} !", )
-
-@bot.command(aliases=['sol','soline','Soline'])
-async def Sol(ctx):
-    await ctx.send(f"Yooooosh Soline !!", tts=True)
+    await ctx.send(f"Yoosh {ctx.author.mention} !", )
 
 @bot.command(aliases= ['purge','Purge','prg','Prg','delete','Delete','del','Del','dl','Dl','suppr','clr','Clr','cl','Cl','Clear']) #clear command
 @commands.has_permissions(manage_messages=True)
@@ -27,12 +23,19 @@ async def clear(ctx,amount: int = None):
        await ctx.channel.purge(limit=amount)
 
 @bot.command()
-async def Boom(ctx):
-    await ctx.send("boom !", tts=True)
+async def Parrot(ctx, arg):
+    await ctx.send(arg, tts = True)
 
 @bot.command()
-async def foo(ctx, arg):
-    await ctx.send(arg, tts = True)
+async def InfoServeur(ctx):
+    server = ctx.guild
+    NombreChanText = len(server.text_channels)
+    NombreChanVoc = len(server.voice_channels)
+    NombrePersonnes = server.member_count
+    NomServeur = server.name
+    message = f"Le serveur **{NomServeur}** contient {NombrePersonnes} personnes. \n Le serveur possède {NombreChanText} salons textuels et {NombreChanVoc} salons vocaux."
+    await ctx.send(message)
+
 
 #   /usr/bin/python3 "/Volumes/Macintosh HD - Données/FICHIERS/ESILV/VsCode/Bot-Discord/Bot.py"
 
