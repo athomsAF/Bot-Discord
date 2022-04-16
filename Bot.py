@@ -54,9 +54,10 @@ async def kick(ctx, user : discord.User, *reason):
 @bot.command()
 async def Poll(ctx, question, options):
  
-    
+ 
     for i in range(int(options)):
         await ctx.send(f":{i}:")
+
 
 
 #   /usr/bin/python3 "/Volumes/Macintosh HD - Données/FICHIERS/ESILV/VsCode/Bot-Discord/Bot.py"
