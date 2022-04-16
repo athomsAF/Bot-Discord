@@ -35,7 +35,6 @@ async def test(ctx,*reason):
     dic['aval']=" ".join(reason)
     print(dic['aval'])
     print(dic)
-    
 
 
 #Commande de CLEAR
