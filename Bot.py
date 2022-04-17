@@ -3,6 +3,9 @@ from discord.ext import commands
 import youtube_dl
 import asyncio
 
+
+
+
 intents = discord.Intents.default()
 intents.members = True
 bot = commands.Bot(command_prefix ="$", description = "On découvre python c nice",intents=intents)
@@ -94,7 +97,7 @@ class Video:
         self.stream_url = video_format["url"]
 
 def play_song(client, queue, song):
-    source = discord.PCMVolumeTransformer(discord.FFmpegPCMAudio(song.stream_url, before_options =  "-reconnect 1 - reconnect_streamed 1 - reconnect_delay_max 5"))
+    source = discord.PCMVolumeTransformer(discord.FFmpegPCMAudio(song.stream_url, before_options =  "-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5"))
     
     async def next (_):
         if len(queue) > 0:
@@ -106,7 +109,7 @@ def play_song(client, queue, song):
 
     client.play(source, after = next)
 
-
+#
 @bot.command()
 async def skip(ctx):
     client = ctx.guild.voice_client
