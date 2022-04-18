@@ -34,17 +34,20 @@ wsplay['B1']="Id"
 j=0
 for i in wsplay:
     j+=1
-for i in range(j-1):
-    char=67
-    liste=[] 
-    while True:
-        if wsplay[f"{chr(char)}{i+2}"].value==None:
-            break
-        else:
-            liste+=[wsplay[f"{chr(char)}{i+2}"].value] 
-            char+=1
-    listef=[i+2,wsplay[f"B{i+2}"].value],liste
-    dicplay[wsplay[f"A{i+2}"].value]=listef
+for i in range(j):
+    if wsplay[f"A{i+2}"].value!=None:
+        char=67
+        liste=[] 
+        while True:
+            if wsplay[f"{chr(char)}{i+2}"].value==None:
+                break
+            else:
+                liste+=[wsplay[f"{chr(char)}{i+2}"].value] 
+                char+=1
+        listef=[i+2,wsplay[f"B{i+2}"].value],liste
+        dicplay[wsplay[f"A{i+2}"].value]=listef
+    else:
+        break
 print (dicplay)
 wbplay.save('playlist.xlsx')
 #print(wbplay.get_sheet_names( ))
@@ -59,8 +62,14 @@ wbplay.save('playlist.xlsx')
 @bot.command()
 async def refresh(ctx):
     members=await ctx.guild.fetch_members(limit=150).flatten()
+    j=0
+    for i in range (len(members)):
+        if members[j].name=="Klyde" or members[j].name=="FabLaBot" :
+            del members[j]
+            j-=1
+        j+=1
+
     for i in range(len(members)):  
-        if (members[i].name!="Klyde") & (members[i].name!="FabLaBot"):
             wsplay[f"A{i+2}"]=members[i].name
             wsplay[f"B{i+2}"]=members[i].id
             wsplay[f"C{i+2}"]=i+1
@@ -70,9 +79,9 @@ async def refresh(ctx):
                 for j in [i for i, e in enumerate(wbplay.sheetnames) if e == f"{members[i].name}playlist"]:
                     wbplay.remove_sheet(wbplay[wbplay.sheetnames[j]])
                 wsp=wbplay.create_sheet(f"{members[i].name}playlist")
-        elif wbplay.sheetnames.count(f"{members[i].name}playlist")>0:
-            for j in range (wbplay.sheetnames.count(f"{members[i].name}playlist")):
-                wbplay.remove(wbplay[f"{members[i].name}playlist"])
+#        elif wbplay.sheetnames.count(f"{members[i].name}playlist")>0:
+#            for j in range (wbplay.sheetnames.count(f"{members[i].name}playlist")):
+#                wbplay.remove(wbplay[f"{members[i].name}playlist"])
     print(wbplay.sheetnames)
     wbplay.save('playlist.xlsx')
 
