@@ -2,15 +2,14 @@ import discord
 from discord.ext import commands
 import youtube_dl
 import asyncio
-
-
+from openpyxl import Workbook, load_workbook
 
 
 intents = discord.Intents.default()
 intents.members = True
 bot = commands.Bot(command_prefix ="$", description = "On découvre python c nice",intents=intents)
 
-
+dicplay={}
 ###AU DEMARRAGE
 @bot.event
 async def on_ready():
@@ -19,24 +18,63 @@ async def on_ready():
     channel = bot.get_channel(963007190308892702)
     await channel.send("< ON >")
 
-    #guil=ctx.message.guild.id
 
 
+################################################################################################################
+######################################Ensemble des non-commandes################################################
+################################################################################################################
+wbform= load_workbook('formation.xlsx')
+wbplay= load_workbook('playlist.xlsx')
+wsform=wbform.active
+wsplay=wbplay.active
+wsplay['A1']="Name"
+wsplay['B1']="Id"
+j=0
+for i in wsplay:
+    j+=1
+for i in range(j-1):
+    char=67
+    liste=[] 
+    while True:
+        if wsplay[f"{chr(char)}{i+2}"].value==None:
+            break
+        else:
+            liste+=[wsplay[f"{chr(char)}{i+2}"].value] 
+            print(wsplay[f"{chr(char)}{i+2}"].value)
+            char+=1
+    listef=[i+2,wsplay[f"B{i+2}"].value],liste
+    dicplay[wsplay[f"A{i+2}"].value]=listef
+print (dicplay)
+wbplay.save('playlist.xlsx')
 
-###ENSEMBLE DE COMMANDES
-#Recupération id
-@bot.command()  
-async def mem(ctx):
-  members = await ctx.guild.fetch_members(limit=150).flatten()
-  for member in members:
-    await ctx.send(f"{member.name} = {member.id}")
-    
+################################################################################################################
+######################################ENSEMBLE DE COMMANDES#####################################################
+################################################################################################################
+#add music playlistc
 @bot.command()
-async def test(ctx,*reason):
-    dic={}
-    dic['aval']=" ".join(reason)
-    print(dic['aval'])
-    print(dic)
+async def refresh(ctx):
+    members = await ctx.guild.fetch_members(limit=150).flatten()
+    for i in len(members):    
+        wsplay[f"A{i+2}"]=members[i].name
+        wsplay[f"B{i+2}"]=members[i].id
+
+
+@bot.command()
+async def add(ctx,*reason):
+#    print(len(dicplay[ctx.message.author.name][1])+3)
+    wsplay.insert_cols(len(dicplay[ctx.message.author.name][1])+3)
+    dicplay[ctx.message.author.name]=[dicplay[ctx.message.author.name][0],dicplay[ctx.message.author.name][1]+[" ".join(reason)]]
+    link=f"{chr(len(dicplay[ctx.message.author.name][1])+66)}{dicplay[ctx.message.author.name][0][0]}"
+    wsplay[link]=" ".join(reason)
+#    print(f"{chr(len(dicplay[ctx.message.author.name][1])+67)}{dicplay[ctx.message.author.name][0][0]}")
+#    print(dicplay)
+#    wsplay.save('playlist.xlsx')
+    wbplay.save('playlist.xlsx')
+
+@bot.command()
+async def playlist(ctx):
+    for i in dicplay[ctx.message.author.name][1]:
+        await ctx.send(i)
 
 
 #Commande de CLEAR
