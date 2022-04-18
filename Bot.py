@@ -4,7 +4,6 @@ import youtube_dl
 import asyncio
 from openpyxl import Workbook, load_workbook
 
-
 intents = discord.Intents.default()
 intents.members = True
 bot = commands.Bot(command_prefix ="$", description = "On découvre python c nice",intents=intents)
@@ -40,12 +39,15 @@ for i in range(j-1):
             break
         else:
             liste+=[wsplay[f"{chr(char)}{i+2}"].value] 
-            print(wsplay[f"{chr(char)}{i+2}"].value)
             char+=1
     listef=[i+2,wsplay[f"B{i+2}"].value],liste
     dicplay[wsplay[f"A{i+2}"].value]=listef
 print (dicplay)
 wbplay.save('playlist.xlsx')
+#print(wbplay.get_sheet_names( ))
+#wbplay.remove_sheet(wbplay.get_sheet_by_name(wbplay.get_sheet_names( )[1]))
+
+
 
 ################################################################################################################
 ######################################ENSEMBLE DE COMMANDES#####################################################
@@ -53,22 +55,30 @@ wbplay.save('playlist.xlsx')
 #add music playlistc
 @bot.command()
 async def refresh(ctx):
-    members = await ctx.guild.fetch_members(limit=150).flatten()
-    for i in len(members):    
-        wsplay[f"A{i+2}"]=members[i].name
-        wsplay[f"B{i+2}"]=members[i].id
-
+    members=await ctx.guild.fetch_members(limit=150).flatten()
+    for i in range(len(members)):  
+        if (members[i].name!="Klyde") & (members[i].name!="FabLaBot"):
+            wsplay[f"A{i+2}"]=members[i].name
+            wsplay[f"B{i+2}"]=members[i].id
+            wsplay[f"C{i+2}"]=i+1
+            if wbplay.sheetnames.count(f"{members[i].name}playlist")==0:
+                wsp=wbplay.create_sheet(f"{members[i].name}playlist")
+            elif wbplay.sheetnames.count(f"{members[i].name}playlist")>1:
+                for j in [i for i, e in enumerate(wbplay.sheetnames) if e == f"{members[i].name}playlist"]:
+                    wbplay.remove_sheet(wbplay[wbplay.sheetnames[j]])
+                wsp=wbplay.create_sheet(f"{members[i].name}playlist")
+        elif wbplay.sheetnames.count(f"{members[i].name}playlist")>0:
+            for j in range (wbplay.sheetnames.count(f"{members[i].name}playlist")):
+                wbplay.remove(wbplay[f"{members[i].name}playlist"])
+    print(wbplay.sheetnames)
+    wbplay.save('playlist.xlsx')
 
 @bot.command()
 async def add(ctx,*reason):
-#    print(len(dicplay[ctx.message.author.name][1])+3)
     wsplay.insert_cols(len(dicplay[ctx.message.author.name][1])+3)
     dicplay[ctx.message.author.name]=[dicplay[ctx.message.author.name][0],dicplay[ctx.message.author.name][1]+[" ".join(reason)]]
     link=f"{chr(len(dicplay[ctx.message.author.name][1])+66)}{dicplay[ctx.message.author.name][0][0]}"
     wsplay[link]=" ".join(reason)
-#    print(f"{chr(len(dicplay[ctx.message.author.name][1])+67)}{dicplay[ctx.message.author.name][0][0]}")
-#    print(dicplay)
-#    wsplay.save('playlist.xlsx')
     wbplay.save('playlist.xlsx')
 
 @bot.command()
@@ -76,6 +86,11 @@ async def playlist(ctx):
     for i in dicplay[ctx.message.author.name][1]:
         await ctx.send(i)
 
+@bot.command()
+async def createplaylist(ctx,*reason):
+    dicplay[ctx.message.author.name]=[dicplay[ctx.message.author.name][0],dicplay[ctx.message.author.name][1]+[" ".join(reason)]]
+    wbplay.create_sheet(" ".join(reason))
+    wbplay.save('playlist.xlsx')
 
 #Commande de CLEAR
 @bot.command(aliases= ['clear','Cl','CL','cl']) #clear command
