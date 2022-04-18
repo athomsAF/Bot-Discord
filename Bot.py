@@ -7,6 +7,9 @@ from openpyxl import Workbook, load_workbook
 intents = discord.Intents.default()
 intents.members = True
 bot = commands.Bot(command_prefix ="$", description = "On découvre python c nice",intents=intents)
+musics = {}
+ytdl = youtube_dl.YoutubeDL()
+
 
 dicplay={}
 ###AU DEMARRAGE
@@ -137,10 +140,8 @@ async def Poll(ctx, question, options, *choice):
     
     await ctx.send(message)
 
-#Youtube
-musics = {}
 
-ytdl = youtube_dl.YoutubeDL()
+
 
 class Video:
     def __init__(self, link):
@@ -150,9 +151,10 @@ class Video:
         self.stream_url = video_format["url"]
 
 def play_song(client, queue, song):
-    source = discord.PCMVolumeTransformer(discord.FFmpegPCMAudio(song.stream_url, before_options =  "-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5"))
+    source = discord.PCMVolumeTransformer(discord.FFmpegPCMAudio(song.stream_url
+        , before_options = "-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5"))
     
-    async def next (_):
+    def next (_):
         if len(queue) > 0:
             new_song = queue[0]
             del queue[0]
@@ -167,6 +169,8 @@ def play_song(client, queue, song):
 async def skip(ctx):
     client = ctx.guild.voice_client
     client.stop()
+    musics[ctx.guild][0]
+#    play_song(client, musics[ctx.guild], musics[ctx.guild][0])
 
 @bot.command()
 async def leave(ctx):
@@ -207,5 +211,7 @@ async def play(ctx, url):
 
 
 #   /usr/bin/python3 "/Volumes/Macintosh HD - Données/FICHIERS/ESILV/VsCode/Bot-Discord/Bot.py"
+#
+
 
 bot.run("OTYzMzg1MTY3MjgyNTg5NzA3.YlVUWg.DAEkTP7NxDCOdSbbd6n6Qpg9o-U")
