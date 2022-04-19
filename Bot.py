@@ -1,3 +1,5 @@
+from email.mime import message
+from re import I
 import discord
 from discord.ext import commands
 import youtube_dl
@@ -28,7 +30,7 @@ async def on_ready():
 wbform= load_workbook('formation.xlsx')
 wbplay= load_workbook('playlist.xlsx')
 wsform=wbform.active
-wsplay=wbplay.active
+wsplay=wbplay["NomId"]
 wsplay['A1']="Name"
 wsplay['B1']="Id"
 j=0
@@ -60,7 +62,7 @@ wbplay.save('playlist.xlsx')
 ################################################################################################################
 #add music playlistc
 @bot.command()
-async def refresh(ctx):
+async def refresh(self,ctx):
     members=await ctx.guild.fetch_members(limit=150).flatten()
     j=0
     for i in range (len(members)):
@@ -87,10 +89,65 @@ async def refresh(ctx):
 
 @bot.command()
 async def add(ctx,*reason):
-    wsplay.insert_cols(len(dicplay[ctx.message.author.name][1])+3)
     dicplay[ctx.message.author.name]=[dicplay[ctx.message.author.name][0],dicplay[ctx.message.author.name][1]+[" ".join(reason)]]
-    link=f"{chr(len(dicplay[ctx.message.author.name][1])+66)}{dicplay[ctx.message.author.name][0][0]}"
-    wsplay[link]=" ".join(reason)
+#    link=f"{chr(len(dicplay[ctx.message.author.name][1])+66)}{dicplay[ctx.message.author.name][0][0]}"
+#    wsplay[link]=" ".join(reason)
+#    wbplay.save('playlist.xlsx')
+    wsp = wbplay[f"{ctx.message.author.name}playlist"]
+    if wsp['A1'].value!=None and wsp['A2'].value!=None:
+        print(wsp['A1'].value)
+        print(wsp['A2'].value)
+        i=1
+        while i!=0:
+            liste=[]
+            if (wsp[f"A{i}"]!=None):
+                liste+=[wsp[f"A{i}"].value]
+                i+=1
+            else:
+                wsp[f"A{i}"].value=" ".join(reason)
+                i=0
+ #        while i!=0:
+ #            i+=1
+ #            j=65
+ #            liste=[]
+ #            if (wsp[f"{chr(j)}{i}"]!=None)):
+ #                while True:
+ #                    j+=1
+ #                    if (wsp[f"{chr(j)}{i}"]!=None):
+ #                        liste+=[wsp[f"{chr(j)}{i}".value]
+ #                    else:
+ #                        break
+ #            else:
+ #                break
+    elif wsp['A1'].value!=None:
+        liste=[]
+        j=65
+        while j!=0:
+            j+=1
+            if (wsp[f"{chr(j)}1"].value==None):
+                if j>91:
+                    wsp[f"{chr((j-64)%64+64)}{chr((j-64)//64+64)}1"].value=str(" ".join(reason))
+                else:
+                    wsp[f"{chr(j)}1"].value=str(" ".join(reason))
+                j=0
+    else:
+        await ctx.message.delete()
+        embed= discord.Embed(
+            title='Choisissez un titre de playlist',
+            description="||Cette requête s'arrêtera dans 1 minute||"
+        )
+        sent= await ctx.send (embed=embed)
+
+        try:
+            msg= await bot.wait_for("message",timeout=10,check=lambda message: message.author == ctx.author and message.channel==ctx.channel)   
+            if msg:
+                await sent.delete()
+                await msg.delete()
+                wsp['A1'].value=msg.content
+                wsp['B1'].value=str(" ".join(reason))
+        except asyncio.TimeoutError: 
+            await sent.delete()
+            await ctx.send("Annulation du au TimeOut", delete_after=10)
     wbplay.save('playlist.xlsx')
 
 @bot.command()
