@@ -94,52 +94,61 @@ async def add(ctx,*reason):
 #    wsplay[link]=" ".join(reason)
 #    wbplay.save('playlist.xlsx')
     wsp = wbplay[f"{ctx.message.author.name}playlist"]
-    if wsp['A1'].value!=None and wsp['A2'].value!=None:
-        print(wsp['A1'].value)
-        print(wsp['A2'].value)
-        i=1
-        while i!=0:
-            liste=[]
-            if (wsp[f"A{i}"]!=None):
-                liste+=[wsp[f"A{i}"].value]
-                i+=1
-            else:
-                wsp[f"A{i}"].value=" ".join(reason)
-                i=0
- #        while i!=0:
- #            i+=1
- #            j=65
- #            liste=[]
- #            if (wsp[f"{chr(j)}{i}"]!=None)):
- #                while True:
- #                    j+=1
- #                    if (wsp[f"{chr(j)}{i}"]!=None):
- #                        liste+=[wsp[f"{chr(j)}{i}".value]
- #                    else:
- #                        break
- #            else:
- #                break
-    elif wsp['A1'].value!=None:
+    if wsp['A1'].value!=None:
         liste=[]
-        j=65
-        while j!=0:
-            j+=1
-            if (wsp[f"{chr(j)}1"].value==None):
+        i=0
+        while i!=-1:
+            i+=1
+            if (wsp[f"A{i}"].value!=None):
+                liste+=[wsp[f"A{i}"].value]
+            else:
+                i=-1
+        var=str("\n-".join(liste))
+        embed= discord.Embed(
+            title='Quel playlist voulez-vous choisir (tapez le numéro)',
+            description=f"Choisissez : \n-{var} \n-nouvelle playlist (taper le nom)"
+        )
+        embed.set_footer(
+            text="||Cette requête s'arrêtera dans 30 secondes||"
+        )
+        sent= await ctx.send (embed=embed)
+        
+        try:
+            msg= await bot.wait_for("message",timeout=30,check=lambda message: message.author == ctx.author and message.channel==ctx.channel)   
+            if msg:
+                await sent.delete()
+                await msg.delete()
+
+        except asyncio.TimeoutError: 
+            await sent.delete()
+            await ctx.send("Annulation du au TimeOut", delete_after=10)
+
+        if liste.count(str(msg.content))==0:
+            wsp[f"A{len(liste)+1}"].value=msg.content
+            wsp[f"B{len(liste)+1}"].value=str(" ".join(reason))
+        elif  liste.count(str(msg.content))>0:
+            j=65
+            while j!=0:
+                j+=1
                 if j>91:
-                    wsp[f"{chr((j-64)%64+64)}{chr((j-64)//64+64)}1"].value=str(" ".join(reason))
+                    if (wsp[f"{chr((j-64)//26+64)}{chr((j-64)%26+64)}{liste.count(str(msg.content))+1}"].value==None):
+                        wsp[f"{chr((j-64)//26+64)}{chr((j-64)%26+64)}{liste.count(str(msg.content))+1}"].value=str(" ".join(reason))
+                        j=0
                 else:
-                    wsp[f"{chr(j)}1"].value=str(" ".join(reason))
-                j=0
+                    if(wsp[f"{chr(j)}{liste.index(str(msg.content))+1}"].value==None):
+                        wsp[f"{chr(j)}{liste.index(str(msg.content))+1}"].value=str(" ".join(reason))
+                        j=0
+        
     else:
         await ctx.message.delete()
         embed= discord.Embed(
             title='Choisissez un titre de playlist',
-            description="||Cette requête s'arrêtera dans 1 minute||"
+            description="||Cette requête s'arrêtera dans 30 secondes||"
         )
         sent= await ctx.send (embed=embed)
 
         try:
-            msg= await bot.wait_for("message",timeout=10,check=lambda message: message.author == ctx.author and message.channel==ctx.channel)   
+            msg= await bot.wait_for("message",timeout=30,check=lambda message: message.author == ctx.author and message.channel==ctx.channel)   
             if msg:
                 await sent.delete()
                 await msg.delete()
@@ -149,6 +158,8 @@ async def add(ctx,*reason):
             await sent.delete()
             await ctx.send("Annulation du au TimeOut", delete_after=10)
     wbplay.save('playlist.xlsx')
+
+
 
 @bot.command()
 async def playlist(ctx):
