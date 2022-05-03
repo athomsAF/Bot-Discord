@@ -110,6 +110,9 @@ def searchPlaylistList(name,plname,wbplay):
 #    print(wbplay.sheetnames)
 #    wbplay.save('playlist.xlsx')
 
+@bot.command()
+async def test(ctx):
+    print(ctx.author.voice)
 
 @bot.command()
 async def add(ctx,*reason):
@@ -244,7 +247,10 @@ async def Poll(ctx, question, options, *choice):
 
 class Video:
     def __init__(self, link):
-        video = ytdl.extract_info(link, download=False)
+        if link[0:4]=="http":
+            video = ytdl.extract_info(link, download=False)
+        else:
+            video = ytdl.extract_info("ytsearch:%s" % link, download=False)['entries'][0]
         video_format = video["formats"][0]
         self.url = video["webpage_url"]
         self.stream_url = video_format["url"]
@@ -261,7 +267,7 @@ def play_song(client, queue, song):
             del queue[0]
             play_song(client, queue, new_song)
         else:
-            asyncio.run_coroutine_threadsafe(client.diconnect(), bot.loop)
+            asyncio.run_coroutine_threadsafe(client.disconnect(), bot.loop)
 
     client.play(source, after = next)
 
@@ -270,14 +276,13 @@ def play_song(client, queue, song):
 async def skip(ctx):
     client = ctx.guild.voice_client
     client.stop()
-    musics[ctx.guild][0]
 #    play_song(client, musics[ctx.guild], musics[ctx.guild][0])
 
 @bot.command()
 async def leave(ctx):
     client = ctx.guild.voice_client
     await client.disconnect()
-    musics[ctx.guild]= []
+    musics[ctx.guild] = []
 
 @bot.command()
 async def resume(ctx):
@@ -292,20 +297,27 @@ async def pause(ctx):
         client.pause()
 
 @bot.command()
-async def play(ctx, url):
+async def play(ctx, *url):
     print("play")
+    urla = str(" ".join(url))
     client = ctx.guild.voice_client
 
     if client and client.channel:
-        video = Video(url)
+        video = Video(urla)
         musics[ctx.guild].append(video)
-    else:
+    elif ctx.author.voice!=None:
         channel = ctx.author.voice.channel
-        video = Video(url)
+        video = Video(urla)
         musics[ctx.guild]=[]
         client = await channel.connect()
         await ctx.send(f"Je lance : {video.url}")
         play_song(client, musics[ctx.guild], video)
+    else:
+        embed= discord.Embed(
+            title=f"Utilisateur non connecté",
+            description=f"{ctx.author.mention} Veuillez vous connecter à un salon vocal \n||Cette requête s'arrêtera dans 10 secondes||"
+        )
+        sent=await ctx.send (embed=embed,delete_after=10)        
 
 
 
