@@ -1,5 +1,3 @@
-from email.mime import message
-from re import I
 import discord
 from discord.ext import commands
 import youtube_dl
@@ -14,46 +12,69 @@ ytdl = youtube_dl.YoutubeDL()
 
 
 dicplay={}
-###AU DEMARRAGE
+
+################################################################################################################
+#############################################Démarrage##########################################################
+################################################################################################################
 @bot.event
 async def on_ready():
     print("--- Ready ---")
     await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name="Netflix"))
     channel = bot.get_channel(963007190308892702)
-    await channel.send("< ON >")
+    await channel.send("< ON >",delete_after=10)
+    wbform= load_workbook('formation.xlsx')
+    wsform=wbform.active
+    (wbplay,wsplay)=loadPlaylistExcel()
+
+    
 
 
 
 ################################################################################################################
 ######################################Ensemble des non-commandes################################################
 ################################################################################################################
-wbform= load_workbook('formation.xlsx')
-wbplay= load_workbook('playlist.xlsx')
-wsform=wbform.active
-wsplay=wbplay["NomId"]
-wsplay['A1']="Name"
-wsplay['B1']="Id"
-j=0
-for i in wsplay:
-    j+=1
-for i in range(j):
-    if wsplay[f"A{i+2}"].value!=None:
-        char=67
-        liste=[] 
-        while True:
-            if wsplay[f"{chr(char)}{i+2}"].value==None:
-                break
-            else:
-                liste+=[wsplay[f"{chr(char)}{i+2}"].value] 
-                char+=1
-        listef=[i+2,wsplay[f"B{i+2}"].value],liste
-        dicplay[wsplay[f"A{i+2}"].value]=listef
-    else:
-        break
-print (dicplay)
-wbplay.save('playlist.xlsx')
-#print(wbplay.get_sheet_names( ))
-#wbplay.remove_sheet(wbplay.get_sheet_by_name(wbplay.get_sheet_names( )[1]))
+
+def loadPlaylistExcel():
+    wbplay= load_workbook('playlist.xlsx')
+    wsplay=wbplay["NomId"]
+    wbplay.save('playlist.xlsx')
+    return(wbplay,wsplay)
+
+def searchName(wsplay):
+    nbLigne=wsplay.max_row
+    Names=[]
+    for i in range(2,nbLigne+1):
+        if wsplay[f"A{i}"].value!=None:
+            Names+=[wsplay[f"A{i}"].value]
+    if Names==[]:
+        Names=0
+    print(Names)
+    return(Names)
+
+def searchPlaylist(name,wbplay):
+    wsplayA=wbplay[f"{name}playlist"]
+    nbLigne=wsplayA.max_row
+    PlaylistNames=[]
+    for i in range(1,nbLigne+1):
+        if wsplayA[f"A{i}"].value !=None:
+            PlaylistNames+=[wsplayA[f"A{i}"].value]
+    return(PlaylistNames)
+
+def searchPlaylistList(name,plname,wbplay):
+    wsplayA=wbplay[f"{name}playlist"]
+    position=searchPlaylist(name,wbplay).index(plname)
+    i=66
+    listePlaylist=[]
+    while i>0:
+        if  wsplayA[f"{chr(i)}{position+1}"].value!= None:
+            listePlaylist+=[wsplayA[f"{chr(i)}{position+1}"].value]
+            i+=1
+        else:
+            i=0
+    return(listePlaylist)
+
+
+
 
 
 
@@ -61,38 +82,39 @@ wbplay.save('playlist.xlsx')
 ######################################ENSEMBLE DE COMMANDES#####################################################
 ################################################################################################################
 #add music playlistc
-@bot.command()
-async def refresh(self,ctx):
-    members=await ctx.guild.fetch_members(limit=150).flatten()
-    j=0
-    for i in range (len(members)):
-        if members[j].name=="Klyde" or members[j].name=="FabLaBot" :
-            del members[j]
-            j-=1
-        j+=1
-
-    for i in range(len(members)):  
-            wsplay[f"A{i+2}"]=members[i].name
-            wsplay[f"B{i+2}"]=members[i].id
-            wsplay[f"C{i+2}"]=i+1
-            if wbplay.sheetnames.count(f"{members[i].name}playlist")==0:
-                wsp=wbplay.create_sheet(f"{members[i].name}playlist")
-            elif wbplay.sheetnames.count(f"{members[i].name}playlist")>1:
-                for j in [i for i, e in enumerate(wbplay.sheetnames) if e == f"{members[i].name}playlist"]:
-                    wbplay.remove_sheet(wbplay[wbplay.sheetnames[j]])
-                wsp=wbplay.create_sheet(f"{members[i].name}playlist")
+#@bot.command()
+#async def refresh(self,ctx,wbplay,wsplay):
+#    members=await ctx.guild.fetch_members(limit=150).flatten()
+#    j=0
+#    for i in range (len(members)):
+#        if members[j].name=="Klyde" or members[j].name=="FabLaBot" :
+#            del members[j]
+#            j-=1
+#        j+=1
+#
+#    for i in range(len(members)):  
+#            wsplay['A1']="Name"
+#            wsplay['B1']="Id"
+#            wsplay[f"A{i+2}"]=members[i].name
+#            wsplay[f"B{i+2}"]=members[i].id
+#            wsplay[f"C{i+2}"]=i+1
+#            if wbplay.sheetnames.count(f"{members[i].name}playlist")==0:
+#                wbplay.create_sheet(f"{members[i].name}playlist")
+#            elif wbplay.sheetnames.count(f"{members[i].name}playlist")>1:
+#                for j in [i for i, e in enumerate(wbplay.sheetnames) if e == f"{members[i].name}playlist"]:
+#                    wbplay.remove_sheet(wbplay[wbplay.sheetnames[j]])
+#                wbplay.create_sheet(f"{members[i].name}playlist")
 #        elif wbplay.sheetnames.count(f"{members[i].name}playlist")>0:
 #            for j in range (wbplay.sheetnames.count(f"{members[i].name}playlist")):
 #                wbplay.remove(wbplay[f"{members[i].name}playlist"])
-    print(wbplay.sheetnames)
-    wbplay.save('playlist.xlsx')
+#    print(wbplay.sheetnames)
+#    wbplay.save('playlist.xlsx')
+
 
 @bot.command()
 async def add(ctx,*reason):
-    dicplay[ctx.message.author.name]=[dicplay[ctx.message.author.name][0],dicplay[ctx.message.author.name][1]+[" ".join(reason)]]
-#    link=f"{chr(len(dicplay[ctx.message.author.name][1])+66)}{dicplay[ctx.message.author.name][0][0]}"
-#    wsplay[link]=" ".join(reason)
-#    wbplay.save('playlist.xlsx')
+    await ctx.message.delete()
+    (wbplay,wsplay)=loadPlaylistExcel()
     wsp = wbplay[f"{ctx.message.author.name}playlist"]
     if wsp['A1'].value!=None:
         liste=[]
@@ -106,10 +128,7 @@ async def add(ctx,*reason):
         var=str("\n-".join(liste))
         embed= discord.Embed(
             title='Quel playlist voulez-vous choisir (tapez le numéro)',
-            description=f"Choisissez : \n-{var} \n-nouvelle playlist (taper le nom)"
-        )
-        embed.set_footer(
-            text="||Cette requête s'arrêtera dans 30 secondes||"
+            description=f"Choisissez : \n-{var} \n-nouvelle playlist (taper le nom) \n\n|| Cette requête s'arrêtera dans 30 secondes ||"
         )
         sent= await ctx.send (embed=embed)
         
@@ -138,9 +157,9 @@ async def add(ctx,*reason):
                     if(wsp[f"{chr(j)}{liste.index(str(msg.content))+1}"].value==None):
                         wsp[f"{chr(j)}{liste.index(str(msg.content))+1}"].value=str(" ".join(reason))
                         j=0
-        
+        liste=searchPlaylistList(ctx.message.author.name,msg.content,wbplay)
+        var="-"+str("\n-".join(liste))
     else:
-        await ctx.message.delete()
         embed= discord.Embed(
             title='Choisissez un titre de playlist',
             description="||Cette requête s'arrêtera dans 30 secondes||"
@@ -152,25 +171,28 @@ async def add(ctx,*reason):
             if msg:
                 await sent.delete()
                 await msg.delete()
+                wsplay.insert_rows(1)
                 wsp['A1'].value=msg.content
                 wsp['B1'].value=str(" ".join(reason))
+                var="-" +str(" ".join(reason))
         except asyncio.TimeoutError: 
             await sent.delete()
             await ctx.send("Annulation du au TimeOut", delete_after=10)
-    wbplay.save('playlist.xlsx')
 
+    ##########Affichage final###############
+    
+    embed= discord.Embed(
+        title='Voici donc votre playlist',
+        description=f"Votre playlist: {msg.content} est composé de:\n{var}\n\n|| Cette requête s'arrêtera dans 10 secondes ||"
+    )
+    sent=await ctx.send (embed=embed,delete_after=10)
+    wbplay.save('playlist.xlsx')
 
 
 @bot.command()
 async def playlist(ctx):
     for i in dicplay[ctx.message.author.name][1]:
         await ctx.send(i)
-
-@bot.command()
-async def createplaylist(ctx,*reason):
-    dicplay[ctx.message.author.name]=[dicplay[ctx.message.author.name][0],dicplay[ctx.message.author.name][1]+[" ".join(reason)]]
-    wbplay.create_sheet(" ".join(reason))
-    wbplay.save('playlist.xlsx')
 
 #Commande de CLEAR
 @bot.command(aliases= ['clear','Cl','CL','cl']) #clear command
@@ -226,6 +248,8 @@ class Video:
         video_format = video["formats"][0]
         self.url = video["webpage_url"]
         self.stream_url = video_format["url"]
+
+
 
 def play_song(client, queue, song):
     source = discord.PCMVolumeTransformer(discord.FFmpegPCMAudio(song.stream_url
