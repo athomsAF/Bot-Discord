@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands
 import youtube_dl
 import asyncio
-from openpyxl import Workbook, load_workbook
+from openpyxl import load_workbook
 
 intents = discord.Intents.default()
 intents.members = True
@@ -73,6 +73,12 @@ def searchPlaylistList(name,plname,wbplay):
             i=0
     return(listePlaylist)
 
+def searchVideoName (link):
+    if link[0:4]=="http":
+        video = ytdl.extract_info(link, download=False)
+    else:
+        video = ytdl.extract_info("ytsearch:%s" % link, download=False)['entries'][0]
+    return(video['title'])
 
 
 
@@ -116,6 +122,9 @@ async def test(ctx):
 
 @bot.command()
 async def add(ctx,*reason):
+    link=str(" ".join(reason))
+    if link[0:4]=="http":
+        link = searchVideoName(link)
     await ctx.message.delete()
     (wbplay,wsplay)=loadPlaylistExcel()
     wsp = wbplay[f"{ctx.message.author.name}playlist"]
@@ -147,18 +156,18 @@ async def add(ctx,*reason):
 
         if liste.count(str(msg.content))==0:
             wsp[f"A{len(liste)+1}"].value=msg.content
-            wsp[f"B{len(liste)+1}"].value=str(" ".join(reason))
+            wsp[f"B{len(liste)+1}"].value=link
         elif  liste.count(str(msg.content))>0:
             j=65
             while j!=0:
                 j+=1
                 if j>91:
                     if (wsp[f"{chr((j-64)//26+64)}{chr((j-64)%26+64)}{liste.count(str(msg.content))+1}"].value==None):
-                        wsp[f"{chr((j-64)//26+64)}{chr((j-64)%26+64)}{liste.count(str(msg.content))+1}"].value=str(" ".join(reason))
+                        wsp[f"{chr((j-64)//26+64)}{chr((j-64)%26+64)}{liste.count(str(msg.content))+1}"].value=link
                         j=0
                 else:
                     if(wsp[f"{chr(j)}{liste.index(str(msg.content))+1}"].value==None):
-                        wsp[f"{chr(j)}{liste.index(str(msg.content))+1}"].value=str(" ".join(reason))
+                        wsp[f"{chr(j)}{liste.index(str(msg.content))+1}"].value=link
                         j=0
         liste=searchPlaylistList(ctx.message.author.name,msg.content,wbplay)
         var="-"+str("\n-".join(liste))
@@ -174,10 +183,9 @@ async def add(ctx,*reason):
             if msg:
                 await sent.delete()
                 await msg.delete()
-                wsplay.insert_rows(1)
                 wsp['A1'].value=msg.content
-                wsp['B1'].value=str(" ".join(reason))
-                var="-" +str(" ".join(reason))
+                wsp['B1'].value=link
+                var="-" +link
         except asyncio.TimeoutError: 
             await sent.delete()
             await ctx.send("Annulation du au TimeOut", delete_after=10)
