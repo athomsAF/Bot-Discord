@@ -117,15 +117,11 @@ def searchVideoName (link):
 #    wbplay.save('playlist.xlsx')
 
 @bot.command()
-async def test(ctx):
-    print(ctx.author.voice)
-
-@bot.command()
 async def add(ctx,*reason):
+    await ctx.message.delete()
     link=str(" ".join(reason))
     if link[0:4]=="http":
         link = searchVideoName(link)
-    await ctx.message.delete()
     (wbplay,wsplay)=loadPlaylistExcel()
     wsp = wbplay[f"{ctx.message.author.name}playlist"]
     if wsp['A1'].value!=None:
@@ -194,7 +190,7 @@ async def add(ctx,*reason):
     
     embed= discord.Embed(
         title='Voici donc votre playlist',
-        description=f"Votre playlist: {msg.content} est composé de:\n{var}\n\n|| Cette requête s'arrêtera dans 10 secondes ||"
+        description=f"Votre playlist: **{msg.content}** est composé de:\n*{var}*\n\n|| Cette requête s'arrêtera dans 10 secondes ||"
     )
     sent=await ctx.send (embed=embed,delete_after=10)
     wbplay.save('playlist.xlsx')
@@ -202,8 +198,8 @@ async def add(ctx,*reason):
 
 @bot.command()
 async def playlist(ctx):
-    for i in dicplay[ctx.message.author.name][1]:
-        await ctx.send(i)
+    (wbplay,wsplay)=loadPlaylistExcel()
+    await ctx.send(str("\n-".join(searchPlaylist(ctx.message.author.name,wbplay))),delete_after=20)
 
 #Commande de CLEAR
 @bot.command(aliases= ['clear','Cl','CL','cl']) #clear command
@@ -236,26 +232,26 @@ async def kick(ctx, user : discord.User, *reason):
 @bot.command(aliases= ['hi'])
 async def Hi(ctx):
     await ctx.send(f"Yoosh {ctx.author.mention} !", )
-@bot.command()
-async def Parrot(ctx, *arg):
-    await ctx.send(" ".join(arg), tts = True)
-
-
-@bot.command()
-async def Poll(ctx, question, options, *choice):
- 
-    message = f"{question} \n"
-    for i in range(int(options)):
-        message += choice,"\n"
-    
-    await ctx.send(message)
+#@bot.command()
+#async def Parrot(ctx, *arg):
+#    await ctx.send(" ".join(arg), tts = True)
+#
+#
+#@bot.command()
+#async def Poll(ctx, question, options, *choice):
+# 
+#    message = f"{question} \n"
+#    for i in range(int(options)):
+#        message += choice,"\n"
+#    
+#    await ctx.send(message)
 
 
 
 
 class Video:
     def __init__(self, link):
-        if link[0:4]=="http":
+        if link[0:4]=="http"or link[0:3]=="wwww":
             video = ytdl.extract_info(link, download=False)
         else:
             video = ytdl.extract_info("ytsearch:%s" % link, download=False)['entries'][0]
@@ -313,12 +309,18 @@ async def play(ctx, *url):
     if client and client.channel:
         video = Video(urla)
         musics[ctx.guild].append(video)
+        embed= discord.Embed(
+            title="La musique suivante à été ajoutée à la queue:",
+            description=f"{video['title']}"
+        )
+        await ctx.send (embed=embed,delete_after=10)   
     elif ctx.author.voice!=None:
         channel = ctx.author.voice.channel
         video = Video(urla)
         musics[ctx.guild]=[]
         client = await channel.connect()
-        await ctx.send(f"Je lance : {video.url}")
+        await ctx.send(f"Je lance : {video.url}",delete_after = 15)
+        await ctx.message.delete()
         play_song(client, musics[ctx.guild], video)
     else:
         embed= discord.Embed(
@@ -327,8 +329,36 @@ async def play(ctx, *url):
         )
         sent=await ctx.send (embed=embed,delete_after=10)        
 
-
-
+@bot.command()
+async def pPlaylist(ctx, *playlist):
+    playlist = str(" ".join(playlist))
+    client = ctx.guild.voice_client
+    (wbplay,wsplay)=loadPlaylistExcel()
+    listePlaylist=searchPlaylist(ctx.message.author.name,wbplay)
+    if client and client.channel:
+        for song in listePlaylist:
+            video = Video(song)
+            musics[ctx.guild].append(video)
+    elif ctx.author.voice!=None:
+        channel = ctx.author.voice.channel
+        video = Video(listePlaylist[0])
+        musics[ctx.guild]=[]
+        client = await channel.connect()
+        await ctx.send(f"Je lance : {video.url}",delete_after = 15)
+        await ctx.message.delete()
+        play_song(client, musics[ctx.guild], video)
+        del listePlaylist[0]
+        for song in listePlaylist:
+            video = Video(song)
+            musics[ctx.guild].append(video)
+    else:
+        embed= discord.Embed(
+            title=f"Utilisateur non connecté",
+            description=f"{ctx.author.mention} Veuillez vous connecter à un salon vocal \n||Cette requête s'arrêtera dans 10 secondes||"
+        )
+        sent=await ctx.send (embed=embed,delete_after=10)        
+   
+        
 
 
 #   /usr/bin/python3 "/Volumes/Macintosh HD - Données/FICHIERS/ESILV/VsCode/Bot-Discord/Bot.py"
