@@ -329,8 +329,8 @@ async def play(ctx, *url):
         )
         sent=await ctx.send (embed=embed,delete_after=10)        
 
-@bot.command()
-async def pPlaylist(ctx, *playlist):
+@bot.command(aliases= ['PlaylistPlay','plyalistPlay','pPlay'])
+async def PPlay(ctx, *playlist):
     playlist = str(" ".join(playlist))
     client = ctx.guild.voice_client
     (wbplay,wsplay)=loadPlaylistExcel()
