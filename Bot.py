@@ -1,4 +1,3 @@
-import Audio
 import discord
 from discord.ext import commands
 import youtube_dl
@@ -116,17 +115,6 @@ def searchVideoName (link):
 #    wbplay.save('playlist.xlsx')
 
 #####################################################COGS#########################################################################
-@bot.command()
-async def load(ctx, name=None):
-    if name:
-        bot.load_extension(name)
-
-
-@bot.command()
-async def unload(ctx, name=None):
-    if name:
-        bot.unload_extension(name)
-
 
 @bot.command()
 async def reload(ctx, name=None):
@@ -256,11 +244,7 @@ async def kick(ctx, user : discord.User, *reason):
     @bot.command(aliases= ['hi'])
     async def Hi(ctx):
         await ctx.send(f"Yoosh {ctx.author.mention} !", )
-#@bot.command()
-#async def Parrot(ctx, *arg):
-#    await ctx.send(" ".join(arg), tts = True)
-#
-#
+
 #@bot.command()
 #async def Poll(ctx, question, options, *choice):
 # 
